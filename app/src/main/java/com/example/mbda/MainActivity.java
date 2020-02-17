@@ -2,6 +2,7 @@ package com.example.mbda;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 
@@ -25,8 +26,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(myToolbar);
+        Toolbar bar = findViewById(R.id.toolbar);
+
+        setSupportActionBar(bar);
 
         recyclerView = findViewById(R.id.recycler_view);
 
@@ -51,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
     }
 
 }
