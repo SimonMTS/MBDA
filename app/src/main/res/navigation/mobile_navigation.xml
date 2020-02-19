@@ -7,37 +7,20 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.mbda.ui.home.HomeFragment"
+        android:name="com.example.mbda_yts.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.example.mbda.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
-
-    <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.example.mbda.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:name="com.example.mbda_yts.ui.TitleSearch.TitleSearchFragment"
+        android:label="@string/menu_title_search"
+        tools:layout="@layout/fragment_TitleSearch" />
 
     <fragment
         android:id="@+id/nav_tools"
-        android:name="com.example.mbda.ui.tools.ToolsFragment"
-        android:label="@string/menu_tools"
-        tools:layout="@layout/fragment_tools" />
+        android:name="com.example.mbda_yts.ui.LocationSearch.LocationSearchFragment"
+        android:label="@string/menu_location_search"
+        tools:layout="@layout/fragment_LocationSearch" />
 
-    <fragment
-        android:id="@+id/nav_share"
-        android:name="com.example.mbda.ui.share.ShareFragment"
-        android:label="@string/menu_share"
-        tools:layout="@layout/fragment_share" />
-
-    <fragment
-        android:id="@+id/nav_send"
-        android:name="com.example.mbda.ui.send.SendFragment"
-        android:label="@string/menu_send"
-        tools:layout="@layout/fragment_send" />
 </navigation>
