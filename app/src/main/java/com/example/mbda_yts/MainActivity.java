@@ -274,6 +274,8 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         String provider = locationManager.getBestProvider(criteria, false);
         Location location = locationManager.getLastKnownLocation(provider);
 
+        String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + this.API_KEY + "&locationRadius=10km&location="+location.getLatitude()+","+location.getLongitude();
+
     }
 
 }
