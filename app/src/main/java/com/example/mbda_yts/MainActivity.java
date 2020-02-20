@@ -3,15 +3,23 @@ package com.example.mbda_yts;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 
+import android.provider.Settings;
 import android.provider.SyncStateContract;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -28,6 +36,9 @@ import com.android.volley.toolbox.Volley;
 import com.example.mbda_yts.ui.MyResultRecyclerViewAdapter;
 import com.example.mbda_yts.ui.ResultFragment;
 import com.example.mbda_yts.ui.dummy.DummyContent;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.JsonObject;
 
@@ -62,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
     private String API_KEY = "AIzaSyBD2zXC-GlNj35r5Qz6R2IbhutHrjQmvVk";
     private static String NEXT_PAGE_TOKEN = "";
 
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 12;
+
     private String SharedPreferencesKey = "search_history3";
 
     LinkedHashSet<YTVideo> searchHistory = new LinkedHashSet<>();
@@ -84,6 +97,25 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+
+        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if (!enabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+
+        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String [] { android.Manifest.permission.ACCESS_COARSE_LOCATION },
+                    MY_PERMISSION_ACCESS_FINE_LOCATION
+            );
+        } else {
+            getLocation();
+        }
 
     }
 
@@ -225,7 +257,23 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         });
         queue.add(request);
 
-
-//        return result;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        getLocation();
+
+    }
+
+    private void getLocation() {
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(provider);
+
+    }
+
 }
