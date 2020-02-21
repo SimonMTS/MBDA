@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -57,6 +59,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -69,15 +72,15 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
     private AppBarConfiguration mAppBarConfiguration;
 
 //    private String API_KEY = "AIzaSyDkRzjbJaolgw9IzF7ao-jQw4H3BzpO9pM";
-//    private String API_KEY = "AIzaSyAKehrK5DM0wciSam-XTJv9WIjK8svx1yk";
-    private String API_KEY = "AIzaSyBD2zXC-GlNj35r5Qz6R2IbhutHrjQmvVk";
+    private String API_KEY = "AIzaSyAKehrK5DM0wciSam-XTJv9WIjK8svx1yk";
+//    private String API_KEY = "AIzaSyBD2zXC-GlNj35r5Qz6R2IbhutHrjQmvVk";
     private static String NEXT_PAGE_TOKEN = "";
 
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 12;
-
     private String SharedPreferencesKey = "search_history3";
-
     LinkedHashSet<YTVideo> searchHistory = new LinkedHashSet<>();
+
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 12;
+    public Location Location = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,25 +100,6 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-
-        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
-        boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        if (!enabled) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        }
-
-        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String [] { android.Manifest.permission.ACCESS_COARSE_LOCATION },
-                    MY_PERMISSION_ACCESS_FINE_LOCATION
-            );
-        } else {
-            getLocation();
-        }
 
     }
 
@@ -154,7 +138,29 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
             editor.commit();
 
             NEXT_PAGE_TOKEN = "";
-            getVideosByTitle(message,this, null);
+
+            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&q=" + message + "&type=video&maxResults=15&key=" + API_KEY;
+            getVideos(URL,this, null);
+
+        }
+
+        if (this.getCurrentFocus() != null) {
+
+            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+
+        }
+
+    }
+
+    public void onLocationSearch(View view) {
+
+        if (Location != null) {
+
+            NEXT_PAGE_TOKEN = "";
+
+            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + API_KEY + "&locationRadius=10km&location="+Location.getLatitude()+","+Location.getLongitude();
+            getVideos(URL,this, null);
 
         }
 
@@ -190,14 +196,35 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
 
     }
 
-    public static void getVideosByTitle(final String searchText, final MainActivity activity, final RecyclerView rv) {
+    public void onLocationSearchLoad() {
 
-        String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&q=" + searchText + "&type=video&maxResults=15&key=" + activity.API_KEY;
+        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-        if (!NEXT_PAGE_TOKEN.equals("")) {
-            URL += "&pageToken=" + NEXT_PAGE_TOKEN;
+        if (!enabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
         }
 
+        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String [] { android.Manifest.permission.ACCESS_COARSE_LOCATION },
+                    MY_PERMISSION_ACCESS_FINE_LOCATION
+            );
+        } else {
+            getLocation();
+        }
+
+    }
+
+    public static void getVideos(String url, final MainActivity activity, final RecyclerView rv) {
+
+        if (!NEXT_PAGE_TOKEN.equals("")) {
+            url += "&pageToken=" + NEXT_PAGE_TOKEN;
+        }
+
+        final String URL = url;
         final LinkedHashSet<YTVideo> result = new LinkedHashSet<>();
 
         RequestQueue queue = Volley.newRequestQueue(activity);
@@ -233,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
 
                         activity.getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.below_search, new ResultFragment(final_result, searchText, activity))
+                            .replace(R.id.below_search, new ResultFragment(final_result, URL, activity))
                             .commit();
 
                     } else {
@@ -272,9 +299,35 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, false);
+
+        // "code should explicitly check if permission is available" this function is only called after the check.
         Location location = locationManager.getLastKnownLocation(provider);
 
-        String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + this.API_KEY + "&locationRadius=10km&location="+location.getLatitude()+","+location.getLongitude();
+        Location = location;
+
+//        if (location != null) {
+
+//            Geocoder gcd = new Geocoder(this);
+//            try {
+//                List<Address> addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+//
+//                if (addresses.size() > 0) {
+//
+//                    String s = addresses.get(0).getLocality();
+//
+//
+//
+//                }
+//            } catch (IOException e) {}
+
+
+//            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + this.API_KEY + "&locationRadius=10km&location="+location.getLatitude()+","+location.getLongitude();
+//
+//            if (!URL.equals("")) {
+//                URL = "aaa";
+//            }
+
+//        }
 
     }
 

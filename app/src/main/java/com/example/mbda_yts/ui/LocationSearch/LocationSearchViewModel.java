@@ -14,7 +14,7 @@ public class LocationSearchViewModel extends ViewModel {
     public LocationSearchViewModel() {
 
         mText = new MutableLiveData<>();
-        mText.setValue("This is LocationSearch fragment");
+        mText.setValue("<location>");
     }
 
     public LiveData<String> getText() {

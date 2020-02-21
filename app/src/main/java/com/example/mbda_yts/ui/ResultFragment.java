@@ -38,7 +38,7 @@ public class ResultFragment extends Fragment {
     int pastVisiblesItems, visibleItemCount, totalItemCount;
 
     private List<YTVideo> History = new ArrayList<>();
-    private String SearchText;
+    private String URL;
     private MainActivity MainActivity;
 
     /**
@@ -48,9 +48,9 @@ public class ResultFragment extends Fragment {
     public ResultFragment() {
     }
 
-    public ResultFragment(LinkedHashSet<YTVideo> history, String searchtext, MainActivity mainactivity) {
+    public ResultFragment(LinkedHashSet<YTVideo> history, String url, MainActivity mainactivity) {
         History.addAll(0, history);
-        SearchText = searchtext;
+        URL = url;
         MainActivity = mainactivity;
     }
 
@@ -116,7 +116,7 @@ public class ResultFragment extends Fragment {
                             {
                                 loading = false;
 
-                                MainActivity.getVideosByTitle(SearchText, MainActivity, recyclerView);
+                                MainActivity.getVideos(URL, MainActivity, recyclerView);
 
                                 loading = true;
                             }
