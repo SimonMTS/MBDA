@@ -19,3 +19,4 @@ There are multiple others at the top of MainActivity, and you can generate your 
 * nice to have :
    * cleanup code
    * optimize api calls (scrolling causes an excessive amount of api calls)
+   * Extra features
