@@ -13,8 +13,10 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.mbda_yts.MainActivity;
 import com.example.mbda_yts.R;
 import com.example.mbda_yts.SearchableFragment;
 import com.example.mbda_yts.YTVideo;
@@ -48,9 +50,28 @@ public class TitleSearchFragment extends Fragment implements SearchableFragment 
         return root;
     }
 
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+
+        if (!((MainActivity)getActivity()).titleFromExternalIntent.equals("")) {
+            EditText editText = ((MainActivity)getActivity()).findViewById(R.id.editText);
+            editText.setText( ((MainActivity)getActivity()).titleFromExternalIntent );
+            titleSearchViewModel.updateSearchHistory(this, ((MainActivity)getActivity()).titleFromExternalIntent);
+
+            ((MainActivity)getActivity()).titleFromExternalIntent = "";
+
+            Fragment currentFragment = ((MainActivity)getActivity()).getCurrentFragment();
+            FragmentTransaction ft = currentFragment.getFragmentManager().beginTransaction();
+            ft.detach(currentFragment);
+            ft.attach(currentFragment);
+            ft.commit();
+        }
+
+    }
+
     @Override
     public void onSearch(View view) {
         EditText editText = this.getActivity().findViewById(R.id.editText);
+        titleSearchViewModel.updateSearchHistory(this, editText.getText().toString());
 
         titleSearchViewModel.loadVideos(this, editText.getText().toString());
     }
@@ -59,8 +80,9 @@ public class TitleSearchFragment extends Fragment implements SearchableFragment 
         if (video.video_id.equals("") && video.video_image_url.equals("") && !video.video_title.equals("")) {
 
             EditText editText = this.getActivity().findViewById(R.id.editText);
-
             editText.setText( video.video_title );
+
+            titleSearchViewModel.updateSearchHistory(this, video.video_title);
 
         } else {
 

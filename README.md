@@ -11,12 +11,8 @@ Still doesn't fully work in the emulator for me, but works fine on real phone.
 There are multiple others at the top of MainActivity, and you can generate your own.
 
 # TODO
-* redirect to the youtube video in the youtube app, on click in results
-* load youtube video title into app, from the youtube app
-* store some settings 
-* fill in searchbar, on click search history item
+* 
 
 * nice to have :
-   * cleanup code
    * optimize api calls (scrolling causes an excessive amount of api calls)
    * Extra features

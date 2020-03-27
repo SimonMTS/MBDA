@@ -1,6 +1,8 @@
 package com.example.mbda_yts;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.view.View;
@@ -13,6 +15,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.mbda_yts.ui.ResultFragment;
+import com.example.mbda_yts.ui.TitleSearch.TitleSearchFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -22,12 +25,15 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ResultFragment.OnListFragmentInteractionListener {
 
     private AppBarConfiguration mAppBarConfiguration;
+
+    public String titleFromExternalIntent = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,15 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        Bundle extras = getIntent().getExtras();
+        if ( extras != null && extras.containsKey("fromYoutube") ) {
+            String title = extras.getString("fromYoutube");
+
+            titleFromExternalIntent = title;
+
+            navController.navigate(R.id.action_nav_home_to_title);
+        }
 
     }
 
@@ -95,6 +110,12 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
 
     public void onClick(YTVideo video) {
         ((SearchableFragment)getCurrentFragment()).onClick(video);
+
+        Fragment currentFragment = getCurrentFragment();
+        FragmentTransaction ft = currentFragment.getFragmentManager().beginTransaction();
+        ft.detach(currentFragment);
+        ft.attach(currentFragment);
+        ft.commit();
     }
 
     public Fragment getCurrentFragment() {

@@ -35,7 +35,7 @@ public class TitleSearchViewModel extends ViewModel {
 
     }
 
-    private void updateSearchHistory( Fragment fragment, String message ) {
+    public void updateSearchHistory( Fragment fragment, String message ) {
 
         searchHistory.remove(new YTVideo("", message, ""));
         searchHistory.add(new YTVideo("", message, ""));

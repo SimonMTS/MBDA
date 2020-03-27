@@ -1,5 +1,7 @@
 package com.example.mbda_yts;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.text.Html;
 import android.util.Log;
 
@@ -81,6 +83,43 @@ public class API {
                     }
 
                     NEXT_PAGE_TOKEN = jsonObject.getString("nextPageToken");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("error", error.toString());
+            }
+        });
+        queue.add(request);
+
+    }
+
+    public static void getVideo(final String URL, final Activity activity) {
+
+        RequestQueue queue = Volley.newRequestQueue(activity);
+        StringRequest request = new StringRequest(com.android.volley.Request.Method.GET, URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArray = jsonObject.getJSONArray("items");
+
+                    System.out.println(URL);
+
+                    JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+                    JSONObject jsonsnippet = jsonObject1.getJSONObject("snippet");
+                    String videoTitle = jsonsnippet.getString("title");
+
+
+                    Intent homepage = new Intent(activity.getBaseContext(), MainActivity.class);
+                    homepage.putExtra("fromYoutube", videoTitle);
+                    activity.startActivity(homepage);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
