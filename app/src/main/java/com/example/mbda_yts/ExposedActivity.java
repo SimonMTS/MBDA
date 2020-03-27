@@ -15,6 +15,6 @@ public class ExposedActivity extends AppCompatActivity {
         String url = extras.getString(Intent.EXTRA_TEXT);
         String id = url.replaceAll("https://youtu.be/", "");
 
-        API.getVideo("https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + id + "&key=" + API.API_KEY, this);
+        API.getVideo("https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + id + "&key=" + API.getApiKey(this), this);
     }
 }

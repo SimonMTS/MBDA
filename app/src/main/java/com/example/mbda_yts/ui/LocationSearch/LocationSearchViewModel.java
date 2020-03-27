@@ -102,7 +102,7 @@ public class LocationSearchViewModel extends ViewModel {
 
             API.NEXT_PAGE_TOKEN = "";
 
-            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + API.API_KEY + "&locationRadius=10km&location=" + Location.getLatitude() + "," + Location.getLongitude();
+            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + API.getApiKey(fragment.getActivity()) + "&locationRadius=10km&location=" + Location.getLatitude() + "," + Location.getLongitude();
             API.getVideos(URL, (MainActivity) fragment.getActivity(), null);
 
         }

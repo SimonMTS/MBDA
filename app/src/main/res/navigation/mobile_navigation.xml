@@ -13,18 +13,39 @@
             <action
                 android:id="@+id/action_nav_home_to_title"
                 app:destination="@id/nav_slideshow" />
+            <action
+                android:id="@+id/action_to_settings"
+                app:destination="@id/settings_edit" />
         </fragment>
 
     <fragment
         android:id="@+id/nav_slideshow"
         android:name="com.example.mbda_yts.ui.TitleSearch.TitleSearchFragment"
         android:label="@string/menu_title_search"
-        tools:layout="@layout/fragment_TitleSearch" />
+        tools:layout="@layout/fragment_title_search">
+            <action
+                android:id="@+id/action_to_settings"
+                app:destination="@id/settings_edit" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_tools"
         android:name="com.example.mbda_yts.ui.LocationSearch.LocationSearchFragment"
         android:label="@string/menu_location_search"
-        tools:layout="@layout/fragment_LocationSearch" />
+        tools:layout="@layout/fragment_location_search">
+            <action
+                android:id="@+id/action_to_settings"
+                app:destination="@id/settings_edit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settings_edit"
+        android:name="com.example.mbda_yts.ui.Settings.SettingsFragment"
+        android:label="@string/action_settings"
+        tools:layout="@layout/settings_fragment">
+            <action
+                android:id="@+id/action_to_settings"
+                app:destination="@id/settings_edit" />
+    </fragment>
 
 </navigation>

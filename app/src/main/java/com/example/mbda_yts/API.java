@@ -1,7 +1,9 @@
 package com.example.mbda_yts;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.Html;
 import android.util.Log;
 
@@ -24,10 +26,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 
 public class API {
-
- // public static String API_KEY = "AIzaSyDkRzjbJaolgw9IzF7ao-jQw4H3BzpO9pM";
- // public static String API_KEY = "AIzaSyAKehrK5DM0wciSam-XTJv9WIjK8svx1yk";
-    public static String API_KEY = "AIzaSyBD2zXC-GlNj35r5Qz6R2IbhutHrjQmvVk";
 
     public static String NEXT_PAGE_TOKEN = "";
 
@@ -133,6 +131,22 @@ public class API {
             }
         });
         queue.add(request);
+
+    }
+
+    public static String getApiKey(Activity activity) {
+
+        SharedPreferences prefs = activity.getSharedPreferences("API_KEY", Context.MODE_PRIVATE);
+
+        String defval = "AIzaSyDkRzjbJaolgw9IzF7ao-jQw4H3BzpO9pM";
+//        String defval = "AIzaSyAKehrK5DM0wciSam-XTJv9WIjK8svx1yk";
+//        String defval = "AIzaSyBD2zXC-GlNj35r5Qz6R2IbhutHrjQmvVk";
+
+        try {
+            return prefs.getString("API_KEY", defval);
+        } catch (Exception e) {
+            return defval;
+        }
 
     }
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.fragment.app.FragmentTransaction;
@@ -15,6 +16,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.mbda_yts.ui.ResultFragment;
+import com.example.mbda_yts.ui.Settings.SettingsFragment;
 import com.example.mbda_yts.ui.TitleSearch.TitleSearchFragment;
 import com.google.android.material.navigation.NavigationView;
 
@@ -118,10 +120,35 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
         ft.commit();
     }
 
+    public void onApiKeyChange(View view) {
+        ((SettingsFragment)getCurrentFragment()).onApiKeyChange(view);
+
+        if (this.getCurrentFocus() != null) {
+
+            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+
+        }
+    }
+
+
     public Fragment getCurrentFragment() {
         int count = this.getSupportFragmentManager().getBackStackEntryCount();
         Fragment frag = this.getSupportFragmentManager().getFragments().get(count>0?count-1:count);
         return frag.getChildFragmentManager().getFragments().get(0);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+
+                Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.action_to_settings);
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

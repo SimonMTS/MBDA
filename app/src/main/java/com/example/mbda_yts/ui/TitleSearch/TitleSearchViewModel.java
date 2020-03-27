@@ -28,7 +28,7 @@ public class TitleSearchViewModel extends ViewModel {
 
             API.NEXT_PAGE_TOKEN = "";
 
-            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&q=" + message + "&type=video&maxResults=15&key=" + API.API_KEY;
+            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&q=" + message + "&type=video&maxResults=15&key=" + API.getApiKey(fragment.getActivity());
             API.getVideos(URL, (MainActivity) fragment.getActivity(), null);
 
         }

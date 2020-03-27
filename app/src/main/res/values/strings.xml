@@ -14,4 +14,7 @@
     <string name="menu_location_search">Search by location</string>
 
     <string name="menu_location_search_current">Search by current location</string>
+
+    <string name="API_KEY">API key</string>
+    <string name="API_KEY_change">Change</string>
 </resources>
