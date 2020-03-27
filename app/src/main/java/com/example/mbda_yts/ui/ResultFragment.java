@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.mbda_yts.API;
 import com.example.mbda_yts.MainActivity;
 import com.example.mbda_yts.R;
 import com.example.mbda_yts.YTVideo;
@@ -95,7 +96,7 @@ public class ResultFragment extends Fragment {
 
                 recyclerView.setLayoutManager(lm);
             }
-            recyclerView.setAdapter(new MyResultRecyclerViewAdapter(History, mListener));
+            recyclerView.setAdapter(new ResultRecyclerViewAdapter(History, mListener));
 
 
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
@@ -116,7 +117,7 @@ public class ResultFragment extends Fragment {
                             {
                                 loading = false;
 
-                                MainActivity.getVideos(URL, MainActivity, recyclerView);
+                                API.getVideos(URL, MainActivity, recyclerView);
 
                                 loading = true;
                             }

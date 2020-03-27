@@ -1,33 +1,17 @@
 package com.example.mbda_yts;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 
-import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.mbda_yts.ui.MyResultRecyclerViewAdapter;
 import com.example.mbda_yts.ui.ResultFragment;
 import com.google.android.material.navigation.NavigationView;
 
@@ -35,35 +19,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.Menu;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ResultFragment.OnListFragmentInteractionListener {
 
     private AppBarConfiguration mAppBarConfiguration;
-
-    //    private String API_KEY = "AIzaSyDkRzjbJaolgw9IzF7ao-jQw4H3BzpO9pM";
-    private String API_KEY = "AIzaSyAKehrK5DM0wciSam-XTJv9WIjK8svx1yk";
-    //    private String API_KEY = "AIzaSyBD2zXC-GlNj35r5Qz6R2IbhutHrjQmvVk";
-
-    private static String NEXT_PAGE_TOKEN = "";
-
-    private String SharedPreferencesKey = "search_history3";
-    LinkedHashSet<YTVideo> searchHistory = new LinkedHashSet<>();
-
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 12;
-    public Location Location = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,173 +64,8 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
                 || super.onSupportNavigateUp();
     }
 
-    public void onSearch(View view) {
-        EditText editText = findViewById(R.id.editText);
-        String message = editText.getText().toString();
-
-        if (!message.equals("")) {
-
-            searchHistory.remove(new YTVideo("", message, ""));
-            searchHistory.add(new YTVideo("", message, ""));
-
-            SharedPreferences prefs = getSharedPreferences(SharedPreferencesKey, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-
-            JSONArray json = new JSONArray();
-            for (YTVideo video : searchHistory) {
-                json.put(video.video_title);
-            }
-
-            editor.putString(SharedPreferencesKey, json.toString());
-            editor.commit();
-
-            NEXT_PAGE_TOKEN = "";
-
-            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&q=" + message + "&type=video&maxResults=15&key=" + API_KEY;
-            getVideos(URL, this, null);
-
-        }
-
-        if (this.getCurrentFocus() != null) {
-
-            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
-
-        }
-
-    }
-
-    public void onLocationSearch(View view) {
-
-        if (Location != null) {
-
-            NEXT_PAGE_TOKEN = "";
-
-            String URL = "https://www.googleapis.com/youtube/v3/search/?part=snippet&type=video&maxResults=15&key=" + API_KEY + "&locationRadius=10km&location=" + Location.getLatitude() + "," + Location.getLongitude();
-            getVideos(URL, this, null);
-
-        }
-
-        if (this.getCurrentFocus() != null) {
-
-            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
-
-        }
-
-    }
-
     @Override
     public void onListFragmentInteraction(YTVideo item) {
-
-    }
-
-    public void onTitleSearchLoad() {
-
-        SharedPreferences prefs = getSharedPreferences(SharedPreferencesKey, Context.MODE_PRIVATE);
-        try {
-            JSONArray jsonArray = new JSONArray(prefs.getString(SharedPreferencesKey, "[]"));
-            searchHistory.clear();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                searchHistory.add(new YTVideo("", jsonArray.get(i).toString(), ""));
-            }
-        } catch (Exception e) {
-        }
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.below_search, new ResultFragment(searchHistory, "", null))
-                .commit();
-
-    }
-
-    public void onLocationSearchLoad() {
-
-        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
-        boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        if (!enabled) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        }
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    MY_PERMISSION_ACCESS_FINE_LOCATION
-            );
-        } else {
-            getLocation();
-        }
-
-    }
-
-    public static void getVideos(String url, final MainActivity activity, final RecyclerView rv) {
-
-        if (!NEXT_PAGE_TOKEN.equals("")) {
-            url += "&pageToken=" + NEXT_PAGE_TOKEN;
-        }
-
-        final String URL = url;
-        final LinkedHashSet<YTVideo> result = new LinkedHashSet<>();
-
-        RequestQueue queue = Volley.newRequestQueue(activity);
-        StringRequest request = new StringRequest(com.android.volley.Request.Method.GET, URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    JSONArray jsonArray = jsonObject.getJSONArray("items");
-
-                    if (jsonObject.getString("nextPageToken").equals(NEXT_PAGE_TOKEN)) return;
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
-                        JSONObject jsonVideoId = jsonObject1.getJSONObject("id");
-                        String videoId = jsonVideoId.getString("videoId");
-
-                        JSONObject jsonsnippet = jsonObject1.getJSONObject("snippet");
-                        String videoTitle = jsonsnippet.getString("title");
-
-                        JSONObject imageObject = jsonsnippet.getJSONObject("thumbnails").getJSONObject("high");
-                        String imageUrl = imageObject.getString("url");
-
-                        result.add(new YTVideo(videoId, videoTitle, imageUrl));
-                    }
-
-                    if (NEXT_PAGE_TOKEN.equals("")) {
-
-                        ArrayList<YTVideo> result_as_list = new ArrayList<>(result);
-                        Collections.reverse(result_as_list);
-                        LinkedHashSet<YTVideo> final_result = new LinkedHashSet<>(result_as_list);
-
-                        activity.getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.below_search, new ResultFragment(final_result, URL, activity))
-                                .commit();
-
-                    } else {
-
-                        ((MyResultRecyclerViewAdapter) rv.getAdapter()).addItems(result);
-
-                    }
-
-                    NEXT_PAGE_TOKEN = jsonObject.getString("nextPageToken");
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("error", error.toString());
-            }
-        });
-        queue.add(request);
 
     }
 
@@ -274,31 +73,34 @@ public class MainActivity extends AppCompatActivity implements ResultFragment.On
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        getLocation();
+        Fragment currentFragment = getCurrentFragment();
 
+        FragmentTransaction ft = currentFragment.getFragmentManager().beginTransaction();
+        ft.detach(currentFragment);
+        ft.attach(currentFragment);
+        ft.commit();
     }
 
-    private void getLocation() {
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, false);
+    public void onSearch(View view) {
+        ((SearchableFragment)getCurrentFragment()).onSearch(view);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        if (this.getCurrentFocus() != null) {
+
+            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+
         }
-        Location location = locationManager.getLastKnownLocation(provider);
+    }
 
-        Location = location;
+    public void onClick(YTVideo video) {
+        ((SearchableFragment)getCurrentFragment()).onClick(video);
+    }
 
-//        Fragment currentFragment = this.getFragmentManager().findFragmentById(R.id.fragment_container);
-//        if (currentFragment instanceof "NAME OF YOUR FRAGMENT CLASS") {
-//            FragmentTransaction fragTransaction = this.getFragmentManager().beginTransaction();
-//            fragTransaction.detach(currentFragment);
-//            fragTransaction.attach(currentFragment);
-//            fragTransaction.commit();}
-//        }
-
+    public Fragment getCurrentFragment() {
+        int count = this.getSupportFragmentManager().getBackStackEntryCount();
+        Fragment frag = this.getSupportFragmentManager().getFragments().get(count>0?count-1:count);
+        return frag.getChildFragmentManager().getFragments().get(0);
     }
 
 }

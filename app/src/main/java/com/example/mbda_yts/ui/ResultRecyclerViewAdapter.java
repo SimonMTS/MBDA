@@ -11,14 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.mbda_yts.MainActivity;
 import com.example.mbda_yts.YTVideo;
 import com.example.mbda_yts.ui.ResultFragment.OnListFragmentInteractionListener;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -27,12 +25,12 @@ import java.util.List;
 import com.example.mbda_yts.R;
 
 
-public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRecyclerViewAdapter.ViewHolder> {
+public class ResultRecyclerViewAdapter extends RecyclerView.Adapter<ResultRecyclerViewAdapter.ViewHolder> {
 
     private final List<YTVideo> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyResultRecyclerViewAdapter(List<YTVideo> items, OnListFragmentInteractionListener listener) {
+    public ResultRecyclerViewAdapter(List<YTVideo> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -49,6 +47,8 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
         holder.mItem = mValues.get(position);
         holder.mContentView.setText(mValues.get(position).video_title);
 
+        final YTVideo clickedVideo = mValues.get(position);
+
         if ( !mValues.get(position).video_image_url.equals("") ) {
             new DownLoadImageTask( holder.mThumbnail ).execute( mValues.get(position).video_image_url );
         }
@@ -57,9 +57,9 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);
+
+                    ((MainActivity)v.getContext()).onClick(clickedVideo);
                 }
             }
         });
@@ -71,7 +71,6 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
     }
 
     public void addItems(LinkedHashSet<YTVideo> newVideos) {
-//        mValues.addAll(0, newVideos);
 
         LinkedList<YTVideo> list = new LinkedList<>(newVideos);
         Iterator<YTVideo> itr = list.iterator(); //descending
@@ -82,11 +81,6 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
             this.notifyItemInserted(0);
         }
 
-//        mValues.add(0, new YTVideo("", "test1-test1-test1-test1", "https://i.ytimg.com/vi/J3pF2jkQ4vc/hqdefault.jpg"));
-//        this.notifyItemInserted(0);
-
-//        mValues.add(mValues.size()-1, new YTVideo("", "test2-test2-test2-test2", "https://i.ytimg.com/vi/J3pF2jkQ4vc/hqdefault.jpg"));
-//        this.notifyItemInserted(mValues.size()-1);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -115,30 +109,19 @@ public class MyResultRecyclerViewAdapter extends RecyclerView.Adapter<MyResultRe
             this.imageView = imageView;
         }
 
-        /*
-            doInBackground(Params... params)
-                Override this method to perform a computation on a background thread.
-         */
         protected Bitmap doInBackground(String...urls){
             String urlOfImage = urls[0];
             Bitmap logo = null;
-            try{
+            try {
                 InputStream is = new URL(urlOfImage).openStream();
-                /*
-                    decodeStream(InputStream is)
-                        Decode an input stream into a bitmap.
-                 */
+
                 logo = BitmapFactory.decodeStream(is);
-            }catch(Exception e){ // Catch the download exception
+            } catch(Exception e) {
                 e.printStackTrace();
             }
             return logo;
         }
 
-        /*
-            onPostExecute(Result result)
-                Runs on the UI thread after doInBackground(Params...).
-         */
         protected void onPostExecute(Bitmap result){
             Bitmap cropped = Bitmap.createBitmap(result, 0,45,480,270 );
 
