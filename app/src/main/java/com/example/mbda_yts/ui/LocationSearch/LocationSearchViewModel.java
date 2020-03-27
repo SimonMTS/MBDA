@@ -4,9 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-
 public class LocationSearchViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
@@ -20,4 +17,5 @@ public class LocationSearchViewModel extends ViewModel {
     public LiveData<String> getText() {
         return mText;
     }
+
 }

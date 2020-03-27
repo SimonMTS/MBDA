@@ -54,7 +54,7 @@ public class LocationSearchFragment extends Fragment {
         }
 
         final String fLocString = locString;
-        locationSearchViewModel.getText().observe(this, new Observer<String>() {
+        locationSearchViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(fLocString);
