@@ -1,6 +1,6 @@
 # MBDA
 
-![alt text](https://raw.githubusercontent.com/SimonMTS/MBDA/master/example.png)
+![alt text](https://raw.githubusercontent.com/SimonMTS/MBDA/master/example.png?token=AD7AJFRPW5H3DPIOG32G3JS67E37A)
 
 # INFO
 ### Reset location permissons with: 
